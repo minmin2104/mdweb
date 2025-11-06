@@ -18,7 +18,8 @@ class Main:
             return
 
         md_parser = MarkdownParser(self.file)
-        md_parser.dump()
+        md_parser.parse()
+        md_parser.dump_element()
 
     def __is_file_md(self):
         if os.path.basename(self.filepath).split(".")[1] == "md":
@@ -27,5 +28,5 @@ class Main:
 
 
 if __name__ == "__main__":
-    filepath = "./README.md"
+    filepath = "./markdown_syntax.md"
     main = Main(filepath)
