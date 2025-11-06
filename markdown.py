@@ -1,3 +1,6 @@
+import sys
+
+
 class _MDElement:
     def __init__(self, tag, content):
         self.tag = tag
@@ -41,6 +44,43 @@ class MarkdownParser:
                 self.elements.append(parag)
 
             line = self.file.readline()
+
+    def generate_template(self, template_filepath):
+        """
+        Convert parsed elements into HTML and insert the
+        generated HTML into a predefined template
+        """
+        if not self.elements:
+            return
+
+        template_file = None
+        try:
+            template_file = open(template_filepath, "r+")
+        except OSError as e:
+            print(f"Failed to read template: {e}", file=sys.stderr)
+            return
+
+        inserted_content = ""
+        for e in self.elements:
+            txt = e.to_html()
+            inserted_content += f"{txt}\n"
+
+        original_content = template_file.read()
+        template_file.close()
+        updated_content = original_content.replace(
+                "<!--CONTENT-->",
+                inserted_content
+                )
+        index_html_file = None
+        index_path = "generated/index.html"
+        try:
+            index_html_file = open(index_path, "w")
+        except OSError as e:
+            print(f"Failed to write index.html: {e}", file=sys.stderr)
+            return
+
+        index_html_file.write(updated_content)
+        index_html_file.close()
 
     def dump_element(self):
         for e in self.elements:
