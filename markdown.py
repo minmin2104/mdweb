@@ -6,7 +6,7 @@ class _MDHeader:
 
 class _MDParagraph:
     def __init__(self, content):
-        self.tag = "paragraph"
+        self.tag = "p"
         self.content = content
 
 
@@ -22,7 +22,7 @@ class MarkdownParser:
         if header_len > 6:
             return _MDParagraph(line)
         content = " ".join(split_line[1:])
-        return _MDHeader(header_len, content)
+        return _MDHeader(f"h{header_len}", content)
 
     def __handle_paragraph(self, line):
         return _MDParagraph(line)
