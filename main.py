@@ -17,7 +17,8 @@ class Main:
             print(f"Failed to open {self.filepath}: {e}", file=sys.stderr)
             return
 
-        MarkdownParser(self.file)
+        md_parser = MarkdownParser(self.file)
+        md_parser.dump()
 
     def __is_file_md(self):
         if os.path.basename(self.filepath).split(".")[1] == "md":
