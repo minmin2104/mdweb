@@ -4,6 +4,12 @@ class _MDHeader:
         self.content = content
 
 
+class _MDParagraph:
+    def __init__(self, content):
+        self.tag = "paragraph"
+        self.content = content
+
+
 class MarkdownParser:
     def __init__(self, md_file):
         self.file = md_file
@@ -14,9 +20,12 @@ class MarkdownParser:
         header = split_line[0]
         header_len = len(header)
         if header_len > 6:
-            return
+            return _MDParagraph(line)
         content = " ".join(split_line[1:])
         return _MDHeader(header_len, content)
+
+    def __handle_paragraph(self, line):
+        return _MDParagraph(line)
 
     def parse(self):
         line = self.file.readline()
@@ -25,9 +34,15 @@ class MarkdownParser:
             if line.startswith("#"):
                 md_header = self.__handle_header(line)
                 self.elements.append(md_header)
+            elif line.startswith(""):
+                # Suppose to skip empty line
+                # Gonna see if there's more cases to handle
+                line = self.file.readline()
+                continue
             else:
-                # Handle normal text <p></p>
-                pass
+                parag = self.__handle_paragraph(line)
+                self.elements.append(parag)
+
             line = self.file.readline()
 
     def dump_element(self):
