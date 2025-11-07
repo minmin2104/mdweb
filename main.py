@@ -17,12 +17,12 @@ class Main:
             print(f"Failed to open {self.filepath}: {e}", file=sys.stderr)
             return
 
-        template_path = "./template/template.html"
+        # template_path = "./template/template.html"
 
         md_parser = MarkdownParser(self.file)
         md_parser.parse()
         md_parser.dump_element()
-        md_parser.generate_template(template_path)
+        # md_parser.generate_template(template_path)
 
         self.file.close()
 

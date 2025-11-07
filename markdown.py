@@ -31,14 +31,16 @@ class MarkdownParser:
         line = self.file.readline()
         while line:
             line = line.rstrip()
+            if not line:
+                # This one will skip empty line
+                # Will see if there's more cases need to
+                # be handled
+                line = self.file.readline()
+                continue
+
             if line.startswith("#"):
                 md_header = self.__handle_header(line)
                 self.elements.append(md_header)
-            elif line.startswith(""):
-                # Suppose to skip empty line
-                # Gonna see if there's more cases to handle
-                line = self.file.readline()
-                continue
             else:
                 parag = self.__handle_paragraph(line)
                 self.elements.append(parag)
