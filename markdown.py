@@ -7,6 +7,7 @@ class _MDElement:
         self.content = content
 
     def to_html(self):
+        # TODO (#1): Support Inline for Italic and Bold
         return f"<{self.tag}>{self.content}</{self.tag}>"
 
 
@@ -51,7 +52,7 @@ class MarkdownParser:
                 md_bold = self.__handle_bold(line)
                 self.elements.append(md_bold)
             elif line.startswith("*") or line.startswith("_"):
-                # TODO (#1): Perform checking for unordered element as well
+                # TODO (#2): Handle unordered list for '*'
                 md_italic = self.__handle_italic(line)
                 self.elements.append(md_italic)
             else:
