@@ -47,8 +47,8 @@ class MarkdownParser:
 
     def generate_template(self, template_filepath):
         """
-        Convert parsed elements into HTML and insert the
-        generated HTML into a predefined template
+        Convert parsed elements into HTML and create a new index.html
+        file using the template
         """
         if not self.elements:
             return
