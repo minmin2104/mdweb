@@ -30,6 +30,9 @@ class MarkdownParser:
     def __handle_italic(self, line):
         return _MDElement("em", line)
 
+    def __handle_bold(self, line):
+        return _MDElement("strong", line)
+
     def parse(self):
         line = self.file.readline()
         while line:
@@ -44,7 +47,10 @@ class MarkdownParser:
             if line.startswith("#"):
                 md_header = self.__handle_header(line)
                 self.elements.append(md_header)
-            elif line.startswith("*"):
+            elif line.startswith("**") or line.startswith("__"):
+                md_bold = self.__handle_bold(line)
+                self.elements.append(md_bold)
+            elif line.startswith("*") or line.startswith("_"):
                 # TODO (#1): Perform checking for unordered element as well
                 md_italic = self.__handle_italic(line)
                 self.elements.append(md_italic)
