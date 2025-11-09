@@ -1,10 +1,21 @@
 import sys
+import re
 
 
 class _MDElement:
     def __init__(self, tag, content):
         self.tag = tag
         self.content = content
+
+    def __replacer_tag(self):
+        def replacer(match):
+            return f"<{self.tag}>{match.group(1)}</{self.tag}>"
+        return replacer
+
+    def handle_inline_re(self):
+        r_italic = r"\*(.*?)\*"
+        replacer = self.__replacer_tag()
+        return re.sub(r_italic, replacer, self.content)
 
     def to_html(self):
         # TODO (#1): Support Inline for Italic and Bold
