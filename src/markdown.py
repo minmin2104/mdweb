@@ -12,10 +12,10 @@ class _MDElement:
             return f"<{self.tag}>{match.group(1)}</{self.tag}>"
         return replacer
 
-    def handle_inline_re(self):
-        r_italic = r"\*(.*?)\*"
-        replacer = self.__replacer_tag()
-        return re.sub(r_italic, replacer, self.content)
+    def handle_inline(self, text, delim, tag):
+        r_delim = re.escape(delim)
+        pattern = fr"{r_delim}(.*?){r_delim}"
+        return re.sub(pattern, lambda m: f"<{tag}>{m.group(1)}</{tag}>", text)
 
     def to_html(self):
         # TODO (#1): Support Inline for Italic and Bold
