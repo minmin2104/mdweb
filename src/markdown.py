@@ -50,6 +50,32 @@ class MarkdownParser:
     def __handle_bold(self, line):
         return _MDElement("p", line)
 
+    def __handle_unordered_list(self, line):
+        li = []
+        while line.startswith("* ") or line.startswith("- "):
+            line = line.rstrip()
+            li_content = " ".join(line.split(" ")[1:])
+            li_element = _MDElement("li", li_content)
+            li.append(li_element.to_html())
+            line = self.file.readline()
+            nested_li = []
+            while line.startswith("    * ") or line.startswith("    - "):
+                line = line.rstrip()
+                li_content = " ".join(line.split(" ")[5:])
+                nest_li_element = _MDElement("li", li_content)
+                nested_li.append(nest_li_element.to_html())
+                line = self.file.readline()
+            if nested_li:
+                last_li = li[-1]
+                nested_ul = "\n".join(nested_li)
+                print(nested_ul)
+                nested_ul_elem = _MDElement("ul", nested_ul)
+                li[-1] = last_li.replace("</li>",
+                                         f"{nested_ul_elem.to_html()}</li>")
+        ul = "\n".join(li)
+        ul_element = _MDElement("ul", ul)
+        return ul_element, line
+
     def parse(self):
         line = self.file.readline()
         while line:
@@ -64,6 +90,9 @@ class MarkdownParser:
             if line.startswith("#"):
                 md_header = self.__handle_header(line)
                 self.elements.append(md_header)
+            elif line.startswith("* ") or line.startswith("- "):
+                md_ul, line = self.__handle_unordered_list(line)
+                self.elements.append(md_ul)
             elif line.startswith("**") or line.startswith("__"):
                 md_bold = self.__handle_bold(line)
                 self.elements.append(md_bold)
