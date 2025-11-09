@@ -13,6 +13,12 @@ class TestInlineHandler(unittest.TestCase):
                  "abc <strong>bold</strong> jkl <strong>strong</strong>"),
                 ("abc __bold__ jkl __strong__", "__", "strong",
                  "abc <strong>bold</strong> jkl <strong>strong</strong>"),
+                ("abc __*bold*__ jkl __*strong*__", "__", "strong",
+                 "abc <strong>*bold*</strong> jkl <strong>*strong*</strong>"),
+                ("abc <strong>*bold*</strong> jkl <strong>*strong*</strong>",
+                 "*", "em",
+                 "abc <strong><em>bold</em></strong> jkl\
+ <strong><em>strong</em></strong>"),
                 ]
 
         for text, delim, tag, expected in test_cases:
