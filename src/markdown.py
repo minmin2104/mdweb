@@ -21,10 +21,19 @@ class _MDElement:
     def to_html(self):
         text = self.content
         text = self.handle_inline(text, "**", "strong")
-        text = self.handle_inline(text, "_", "em")
         text = self.handle_inline(text, "__", "strong")
+        text = self.handle_inline(text, "_", "em")
         text = self.handle_inline(text, "*", "em")
         return f"<{self.tag}>{text}</{self.tag}>"
+
+
+class _MDInlineElement(_MDElement):
+    def __init__(self, tag, content):
+        super().__init__(tag, content)
+
+    def to_html(self):
+        text = super().to_html()
+        return f"<p>{text}</p>"
 
 
 class MarkdownParser:
@@ -45,10 +54,10 @@ class MarkdownParser:
         return _MDElement("p", line)
 
     def __handle_italic(self, line):
-        return _MDElement("em", line)
+        return _MDElement("p", line)
 
     def __handle_bold(self, line):
-        return _MDElement("strong", line)
+        return _MDElement("p", line)
 
     def parse(self):
         line = self.file.readline()
