@@ -27,15 +27,6 @@ class _MDElement:
         return f"<{self.tag}>{text}</{self.tag}>"
 
 
-class _MDInlineElement(_MDElement):
-    def __init__(self, tag, content):
-        super().__init__(tag, content)
-
-    def to_html(self):
-        text = super().to_html()
-        return f"<p>{text}</p>"
-
-
 class MarkdownParser:
     def __init__(self, md_file):
         self.file = md_file
