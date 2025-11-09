@@ -1,5 +1,6 @@
 import sys
 import re
+import os
 
 
 class _MDElement:
@@ -18,8 +19,12 @@ class _MDElement:
         return re.sub(pattern, lambda m: f"<{tag}>{m.group(1)}</{tag}>", text)
 
     def to_html(self):
-        # TODO (#1): Support Inline for Italic and Bold
-        return f"<{self.tag}>{self.content}</{self.tag}>"
+        text = self.content
+        text = self.handle_inline(text, "**", "strong")
+        text = self.handle_inline(text, "_", "em")
+        text = self.handle_inline(text, "__", "strong")
+        text = self.handle_inline(text, "*", "em")
+        return f"<{self.tag}>{text}</{self.tag}>"
 
 
 class MarkdownParser:
@@ -99,7 +104,14 @@ class MarkdownParser:
                 inserted_content
                 )
         index_html_file = None
-        index_path = "generated/index.html"
+        index_path = "./generated/index.html"
+        os.makedirs(os.path.dirname(index_path),
+                    exist_ok=True)  # create ./generated if needed
+        try:
+            index_html_file = open(index_path, "w")
+        except OSError as e:
+            print(f"Failed to write index.html: {e}", file=sys.stderr)
+            return
         try:
             index_html_file = open(index_path, "w")
         except OSError as e:

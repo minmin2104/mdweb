@@ -21,7 +21,7 @@ class Main:
         md_parser.parse()
         md_parser.dump_element()
 
-        template_path = "../template/template.html"
+        template_path = "./template/template.html"
         md_parser.generate_template(template_path)
 
         self.file.close()
@@ -33,5 +33,5 @@ class Main:
 
 
 if __name__ == "__main__":
-    filepath = "../markdown_syntax.md"
+    filepath = "./markdown_syntax.md"
     main = Main(filepath)
