@@ -50,31 +50,70 @@ class MarkdownParser:
     def __handle_bold(self, line):
         return _MDElement("p", line)
 
-    def __handle_unordered_list(self, line):
-        li = []
-        while line.startswith("* ") or line.startswith("- "):
-            line = line.rstrip()
-            li_content = " ".join(line.split(" ")[1:])
-            li_element = _MDElement("li", li_content)
-            li.append(li_element.to_html())
-            line = self.file.readline()
-            nested_li = []
-            while line.startswith("    * ") or line.startswith("    - "):
-                line = line.rstrip()
-                li_content = " ".join(line.split(" ")[5:])
-                nest_li_element = _MDElement("li", li_content)
-                nested_li.append(nest_li_element.to_html())
-                line = self.file.readline()
-            if nested_li:
-                last_li = li[-1]
-                nested_ul = "\n".join(nested_li)
-                print(nested_ul)
-                nested_ul_elem = _MDElement("ul", nested_ul)
-                li[-1] = last_li.replace("</li>",
-                                         f"{nested_ul_elem.to_html()}</li>")
-        ul = "\n".join(li)
-        ul_element = _MDElement("ul", ul)
-        return ul_element, line
+    def __get_n_init_whitespace(self, line):
+        space_count = 0
+        line_split = line.split(" ")
+        for w in line_split:
+            if not w:
+                space_count += 1
+            else:
+                break
+        return space_count
+
+    def __handle_nested_ul(self, line, nested_li_elems):
+        line_strip = line.lstrip()
+        li_content = " ".join(line_strip.split(" ")[1:])
+        nested_li_elems.append(_MDElement("li", li_content.rstrip()).to_html())
+        prev_n_space = self.__get_n_init_whitespace(line)
+        line = self.file.readline()
+        curr_n_space = self.__get_n_init_whitespace(line)
+        diff_space = curr_n_space - prev_n_space
+
+        if diff_space < 0:
+            return line, nested_li_elems
+
+        if diff_space >= 2 and diff_space <= 5:
+            last_elem = nested_li_elems[-1]
+            last_elem_idx = len(nested_li_elems) - 1
+            line, nested_li_elems = self.__handle_nested_ul(line,
+                                                            nested_li_elems)
+            nested_ul = _MDElement("ul", "\n".join(nested_li_elems)).to_html()
+            replacement = last_elem.replace("</li>", f"{nested_ul}\n</li>")
+            nested_li_elems[last_elem_idx] = replacement
+        elif diff_space > 5:
+            last_elem = nested_li_elems[-1]
+            replacement = f"{li_content} {line}"
+            nested_li_elems[-1] = nested_li_elems[-1].replace(li_content,
+                                                              replacement)
+        elif diff_space >= 0 and diff_space <= 1:
+            line, nested_li_elems = self.__handle_nested_ul(line,
+                                                            nested_li_elems)
+        return line, nested_li_elems
+
+    def __handle_unordered_list(self, line, li_elems):
+        line_strip = line.lstrip()
+        li_content = " ".join(line_strip.split(" ")[1:])
+        li_elems.append(_MDElement("li", li_content.rstrip()).to_html())
+        prev_n_space = self.__get_n_init_whitespace(line)
+        line = self.file.readline()
+        curr_n_space = self.__get_n_init_whitespace(line)
+        diff_space = curr_n_space - prev_n_space
+
+        if diff_space < 0:
+            return line, li_elems
+
+        if diff_space >= 2 and diff_space <= 5:
+            nested_li_elems = []
+            line, nested_li_elems = self.__handle_nested_ul(line,
+                                                            nested_li_elems)
+            last_li = li_elems[-1]
+            nested_ul_elem = _MDElement("ul", "\n".join(nested_li_elems))
+            replacement = last_li.replace("</li>",
+                                          f"{nested_ul_elem.to_html()}\n</li>")
+            li_elems[-1] = replacement
+        if line.startswith("* ") or line.startswith("- "):
+            line, li_elems = self.__handle_unordered_list(line, li_elems)
+        return line, li_elems
 
     def parse(self):
         line = self.file.readline()
@@ -91,7 +130,10 @@ class MarkdownParser:
                 md_header = self.__handle_header(line)
                 self.elements.append(md_header)
             elif line.startswith("* ") or line.startswith("- "):
-                md_ul, line = self.__handle_unordered_list(line)
+                li_elems = []
+                line, li_elems = self.__handle_unordered_list(line, li_elems)
+                lis = "\n".join(li_elems)
+                md_ul = _MDElement("ul", lis)
                 self.elements.append(md_ul)
             elif line.startswith("**") or line.startswith("__"):
                 md_bold = self.__handle_bold(line)
