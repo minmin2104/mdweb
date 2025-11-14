@@ -35,6 +35,7 @@ class _MDElement:
         text = self.handle_inline(text, "__", "strong")
         text = self.handle_inline(text, "_", "em")
         text = self.handle_inline(text, "*", "em")
+        text = self.handle_inline(text, "`", "code")
         text = self.handle_inline_href(text)
         if not self.attr:
             html = f"<{self.tag}>{text}</{self.tag}>"
@@ -74,6 +75,9 @@ class MarkdownParser:
         return _MDElement("p", line)
 
     def __handle_bold(self, line):
+        return _MDElement("p", line)
+
+    def __handle_code(self, line):
         return _MDElement("p", line)
 
     def __get_indent_count(self, line):
@@ -195,6 +199,9 @@ class MarkdownParser:
             elif line.startswith("*") or line.startswith("_"):
                 md_italic = self.__handle_italic(line)
                 self.elements.append(md_italic)
+            elif line.startswith("`"):
+                md_code = self.__handle_code(line)
+                self.elements.append(md_code)
             else:
                 m_ol = re.match(r"^(\d+)\. (.*)", line)
                 m_img = re.match(r"^!\[(.*)\]\((.*)\)", line)

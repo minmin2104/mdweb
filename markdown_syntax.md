@@ -77,5 +77,6 @@ alert(message);
 
 ## Inline code
 
+`inline code is here`
 This web site is using `markedjs/marked`.
 
