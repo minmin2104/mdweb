@@ -4,9 +4,11 @@ import os
 
 
 class _MDElement:
-    def __init__(self, tag, content):
+    def __init__(self, tag, content, attr="", is_void_elem=False):
         self.tag = tag
         self.content = content
+        self.attr = attr
+        self.is_void_elem = is_void_elem
 
     def __replacer_tag(self):
         def replacer(match):
@@ -24,7 +26,9 @@ class _MDElement:
         text = self.handle_inline(text, "__", "strong")
         text = self.handle_inline(text, "_", "em")
         text = self.handle_inline(text, "*", "em")
-        return f"<{self.tag}>{text}</{self.tag}>"
+        if self.is_void_elem:
+            return f"<{self.tag} {self.attr}>"
+        return f"<{self.tag} {self.attr}>{text}</{self.tag}>"
 
 
 class MarkdownParser:
@@ -138,6 +142,17 @@ class MarkdownParser:
         md_ol = _MDElement("ol", f"\n{ol_content}\n")
         return md_ol
 
+    def __handle_img(self, match):
+        alt_text = match.group(1)
+        src_n_title = match.group(2)
+        title = re.search(r'"(.*?)"', src_n_title).group(1)
+        src = re.match(r'^(.*?) ', src_n_title).group(1)
+        src = src.rstrip()
+        attr = f'src="{src}" alt="{alt_text}"'
+        if title is not None:
+            attr += f' title="{title}"'
+        return _MDElement("img", "", attr, is_void_elem=True)
+
     def parse(self):
         line = self.__peek_line()
         while line:
@@ -163,10 +178,16 @@ class MarkdownParser:
                 md_italic = self.__handle_italic(line)
                 self.elements.append(md_italic)
             else:
-                m = re.match(r"^(\d+)\. (.*)", line)
-                if m:
+                m_ol = re.match(r"^(\d+)\. (.*)", line)
+                m_img = re.match(r"^!\[(.*)\]\((.*)\)", line)
+                # TODO (#1): Implement function to get
+                # HTML start and type
+                if m_ol:
                     md_ol = self.__handle_ol(0)
                     self.elements.append(md_ol)
+                elif m_img:
+                    md_img = self.__handle_img(m_img)
+                    self.elements.append(md_img)
                 else:
                     parag = self.__handle_paragraph(line)
                     self.elements.append(parag)
