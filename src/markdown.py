@@ -60,7 +60,7 @@ class MarkdownParser:
     def __handle_bold(self, line):
         return _MDElement("p", line)
 
-    def __get_n_init_whitespace(self, line):
+    def __get_indent_count(self, line):
         if line is None or line == "":
             return 0
         space_count = 0
@@ -80,7 +80,7 @@ class MarkdownParser:
         nline = self.__peek_line()
         nline_lstrip = nline.lstrip()
         while nline_lstrip.startswith("* ") or nline_lstrip.startswith("- "):
-            next_indent = self.__get_n_init_whitespace(nline)
+            next_indent = self.__get_indent_count(nline)
             if 0 <= next_indent - parent_indent <= 1:
                 self.__get_next_line()
                 li_content = self.__get_list_content(self.__curr_line)
