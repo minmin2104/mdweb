@@ -40,6 +40,11 @@ _You **can** combine them_
 3. Item 3
     1. Item 3a
     2. Item 3b
+        1. Item 3b.a
+        2. Item 3b.b
+            1. Item 3b.b.a
+        3. Item 3b.c
+4. Item 4
 
 ## Images
 

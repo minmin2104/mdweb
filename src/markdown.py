@@ -106,6 +106,38 @@ class MarkdownParser:
         md_ul = _MDElement("ul", f"\n{ul_content}\n")
         return md_ul
 
+    def __handle_ol_helper(self, elems, parent_indent):
+        nline = self.__peek_line()
+        nline_lstrip = nline.lstrip()
+        m = re.match(r"^(\d+)\. (.*)", nline_lstrip)
+        while m:
+            next_indent = self.__get_indent_count(nline)
+            if 0 <= next_indent - parent_indent <= 1:
+                self.__get_next_line()
+                li_content = self.__get_list_content(self.__curr_line)
+                elems.append(_MDElement("li", li_content))
+            elif 2 <= next_indent - parent_indent <= 5:
+                nested = self.__handle_ol(next_indent)
+                nested_content = nested.to_html()
+                elems[-1].content += f"\n{nested_content}\n"
+            elif next_indent - parent_indent > 5:
+                self.__get_next_line()
+                elems[-1].content += " " + self.__curr_line.strip()
+            else:
+                break
+
+            nline = self.__peek_line()
+            nline_lstrip = nline.lstrip()
+            m = re.match(r"^(\d+)\. (.*)", nline_lstrip)
+
+        return elems
+
+    def __handle_ol(self, parent_indent):
+        md_list = self.__handle_ol_helper([], parent_indent)
+        ol_content = "\n".join([li.to_html() for li in md_list])
+        md_ol = _MDElement("ol", f"\n{ol_content}\n")
+        return md_ol
+
     def parse(self):
         line = self.__peek_line()
         while line:
@@ -128,12 +160,16 @@ class MarkdownParser:
                 md_bold = self.__handle_bold(line)
                 self.elements.append(md_bold)
             elif line.startswith("*") or line.startswith("_"):
-                # TODO (#2): Handle unordered list for '*'
                 md_italic = self.__handle_italic(line)
                 self.elements.append(md_italic)
             else:
-                parag = self.__handle_paragraph(line)
-                self.elements.append(parag)
+                m = re.match(r"^(\d+)\. (.*)", line)
+                if m:
+                    md_ol = self.__handle_ol(0)
+                    self.elements.append(md_ol)
+                else:
+                    parag = self.__handle_paragraph(line)
+                    self.elements.append(parag)
 
             self.__get_next_line()
             line = self.__peek_line()
