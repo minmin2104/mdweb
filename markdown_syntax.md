@@ -24,15 +24,14 @@ _You **can** combine them_
 
 * Item 1
 * Item 2
-* Item 2a
-* Item 2b
-    * Item 3a
-    * Item 3b
-    * Item 3d
-        * Item 4a
-            * Item 5a
-    * Item 3e
-* Item 5
+    * Item 2a
+    * Item 2b
+    * Item 2c
+        * Item 2c.a
+        * Item 2c.b
+            * Item 2c.b.a
+        * Item 2c.c
+* Item 3
 
 ### Ordered
 

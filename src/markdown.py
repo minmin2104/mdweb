@@ -71,12 +71,39 @@ class MarkdownParser:
                 break
         return space_count
 
+    def __get_list_content(self, line):
+        if not line:
+            return ""
+        return " ".join(line.strip().split(" ")[1:])
+
     def __handle_ul_helper(self, elems, parent_indent):
-        pass
+        nline = self.__peek_line()
+        nline_lstrip = nline.lstrip()
+        while nline_lstrip.startswith("* ") or nline_lstrip.startswith("- "):
+            next_indent = self.__get_n_init_whitespace(nline)
+            if 0 <= next_indent - parent_indent <= 1:
+                self.__get_next_line()
+                li_content = self.__get_list_content(self.__curr_line)
+                elems.append(_MDElement("li", li_content))
+            elif 2 <= next_indent - parent_indent <= 5:
+                nested = self.__handle_ul(next_indent)
+                nested_content = nested.to_html()
+                elems[-1].content += f"\n{nested_content}\n"
+            elif next_indent - parent_indent > 5:
+                self.__get_next_line()
+                elems[-1].content += " " + self.__curr_line
+            else:
+                break
+
+            nline = self.__peek_line()
+            nline_lstrip = nline.lstrip()
+
+        return elems
 
     def __handle_ul(self, parent_indent):
-        md_list = self.__handle_ul_helper(parent_indent)
-        md_ul = _MDElement("ul", "\n".join([li.to_html() for li in md_list]))
+        md_list = self.__handle_ul_helper([], parent_indent)
+        ul_content = "\n".join([li.to_html() for li in md_list])
+        md_ul = _MDElement("ul", f"\n{ul_content}\n")
         return md_ul
 
     def parse(self):
@@ -95,9 +122,8 @@ class MarkdownParser:
                 md_header = self.__handle_header(line)
                 self.elements.append(md_header)
             elif line.startswith("* ") or line.startswith("- "):
-                pass
-                # md_ul = self.__handle_ul(line)
-                # self.elements.append(md_ul)
+                md_ul = self.__handle_ul(0)
+                self.elements.append(md_ul)
             elif line.startswith("**") or line.startswith("__"):
                 md_bold = self.__handle_bold(line)
                 self.elements.append(md_bold)
