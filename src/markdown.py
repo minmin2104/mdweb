@@ -10,25 +10,37 @@ class _MDElement:
         self.attr = attr
         self.is_void_elem = is_void_elem
 
-    def __replacer_tag(self):
-        def replacer(match):
-            return f"<{self.tag}>{match.group(1)}</{self.tag}>"
-        return replacer
-
     def handle_inline(self, text, delim, tag):
         r_delim = re.escape(delim)
         pattern = fr"{r_delim}(.*?){r_delim}"
         return re.sub(pattern, lambda m: f"<{tag}>{m.group(1)}</{tag}>", text)
 
+    def handle_inline_href(self, text):
+        pattern = r"\[(.*?)]\((.*?)\)"
+        return re.sub(
+                pattern,
+                lambda m: f'<a href="{m.group(2)}">{m.group(1)}</a>',
+                text
+                )
+
     def to_html(self):
+        if self.is_void_elem:
+            if self.attr:
+                return f"<{self.tag} {self.attr}>"
+            else:
+                return f"<{self.tag}>"
+
         text = self.content
         text = self.handle_inline(text, "**", "strong")
         text = self.handle_inline(text, "__", "strong")
         text = self.handle_inline(text, "_", "em")
         text = self.handle_inline(text, "*", "em")
-        if self.is_void_elem:
-            return f"<{self.tag} {self.attr}>"
-        return f"<{self.tag} {self.attr}>{text}</{self.tag}>"
+        text = self.handle_inline_href(text)
+        if not self.attr:
+            html = f"<{self.tag}>{text}</{self.tag}>"
+        else:
+            html = f"<{self.tag} {self.attr}>{text}</{self.tag}>"
+        return html
 
 
 class MarkdownParser:
@@ -153,6 +165,12 @@ class MarkdownParser:
             attr += f' title="{title}"'
         return _MDElement("img", "", attr, is_void_elem=True)
 
+    def __handle_href(self, match, line):
+        front_text = match.group(1)
+        href = match.group(2)
+        attr = f'href="{href}"'
+        return _MDElement("a", front_text, attr)
+
     def parse(self):
         line = self.__peek_line()
         while line:
@@ -180,6 +198,7 @@ class MarkdownParser:
             else:
                 m_ol = re.match(r"^(\d+)\. (.*)", line)
                 m_img = re.match(r"^!\[(.*)\]\((.*)\)", line)
+                m_url = re.match(r"^\[(.*?)]\((.*?)\)", line)
                 # TODO (#1): Implement function to get
                 # HTML start and type
                 if m_ol:
@@ -188,6 +207,9 @@ class MarkdownParser:
                 elif m_img:
                     md_img = self.__handle_img(m_img)
                     self.elements.append(md_img)
+                elif m_url:
+                    md_url = self.__handle_href(m_url, line)
+                    self.elements.append(md_url)
                 else:
                     parag = self.__handle_paragraph(line)
                     self.elements.append(parag)
