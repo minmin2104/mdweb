@@ -24,7 +24,7 @@ _You **can** combine them_
 
 * Item 1
 * Item 2
-    * Item 2a
+        * Item 2a
     * Item 2b
     * Item 2c
         * Item 2c.a

@@ -91,7 +91,7 @@ class MarkdownParser:
                 elems[-1].content += f"\n{nested_content}\n"
             elif next_indent - parent_indent > 5:
                 self.__get_next_line()
-                elems[-1].content += " " + self.__curr_line
+                elems[-1].content += " " + self.__curr_line.strip()
             else:
                 break
 
