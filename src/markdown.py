@@ -175,6 +175,15 @@ class MarkdownParser:
         attr = f'href="{href}"'
         return _MDElement("a", front_text, attr)
 
+    def __handle_code_block(self):
+        line = self.__get_next_line()
+        content = ""
+        while self.__peek_line().rstrip() != "```":
+            line = self.__get_next_line()
+            content += line
+        code = _MDElement("code", content).to_html()
+        return _MDElement("pre", code)
+
     def parse(self):
         line = self.__peek_line()
         while line:
@@ -199,6 +208,9 @@ class MarkdownParser:
             elif line.startswith("*") or line.startswith("_"):
                 md_italic = self.__handle_italic(line)
                 self.elements.append(md_italic)
+            elif line.startswith("```"):
+                md_code_block = self.__handle_code_block()
+                self.elements.append(md_code_block)
             elif line.startswith("`"):
                 md_code = self.__handle_code(line)
                 self.elements.append(md_code)
