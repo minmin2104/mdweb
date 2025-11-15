@@ -254,7 +254,6 @@ class MarkdownParser:
                 self.elements.append(md_italic)
             elif line.startswith(">"):
                 md_block_quote = self.__handle_blockquote(1)
-                print(self.__peek_line())
                 self.elements.append(md_block_quote)
             elif line.startswith("```"):
                 md_code_block = self.__handle_code_block()

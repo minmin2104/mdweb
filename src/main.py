@@ -19,7 +19,7 @@ class Main:
 
         md_parser = MarkdownParser(self.file)
         md_parser.parse()
-        md_parser.dump_element()
+        # md_parser.dump_element()
 
         template_path = "./template/template.html"
         md_parser.generate_template(template_path)

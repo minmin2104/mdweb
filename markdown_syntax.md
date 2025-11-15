@@ -67,14 +67,6 @@ Combine with nested sentence
  this supposed to be included
  in the blockquote
 
-## Tables
-
-| Left columns  | Right columns |
-| ------------- |:-------------:|
-| left foo      | right foo     |
-| left bar      | right bar     |
-| left baz      | right baz     |
-
 ## Blocks of code
 
 ```
@@ -86,4 +78,3 @@ alert(message);
 
 `inline code is here`
 This web site is using `markedjs/marked`.
-
