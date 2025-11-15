@@ -193,28 +193,40 @@ class MarkdownParser:
                 break
         return quote_count
 
-    def __handle_blockquote_helper(self, blockquote_list):
-        ps = []
-        content = ""
-        for quote in blockquote_list:
-            q_cont = quote.lstrip(">").lstrip()
-            if q_cont:
-                content += q_cont
+    def __handle_blockquote_helper(self, elems, parent_quote):
+        while self.__peek_line().startswith(">") \
+                or self.__peek_line().strip() != "":
+            next_quote = self.__get_quote(self.__peek_line())
+            if next_quote - parent_quote <= 0:
+                nline = self.__peek_line()
+                content = nline.lstrip(">").rstrip()
+                if content and elems:
+                    elems[-1].content += content
+                    self.__get_next_line()
+                elif content and not elems:
+                    line = self.__get_next_line()
+                    l_content = line.lstrip(">").lstrip().rstrip()
+                    p = _MDElement("p", l_content)
+                    elems.append(p)
+                elif not content and elems:
+                    self.__get_next_line()
+                    line = self.__get_next_line()
+                    l_content = line.lstrip(">").lstrip().rstrip()
+                    p = _MDElement("p", l_content)
+                    elems.append(p)
+                elif not content and not elems:
+                    self.__get_next_line()
+                    continue
             else:
-                ps.append(_MDElement("p", content).to_html())
-                content = ""
+                elems.append(self.__handle_blockquote(next_quote))
 
-        if content:
-            ps.append(_MDElement("p", content).to_html())
-        bq_cont = "\n".join(ps)
-        return _MDElement("blockquote", bq_cont)
+        return elems
 
-    def __handle_blockquote(self):
-        blockquote_list = []
-        while self.__peek_line().startswith(">"):
-            line = self.__get_next_line()
-            blockquote_list.append(line)
-        return self.__handle_blockquote_helper(blockquote_list)
+    def __handle_blockquote(self, parent_quote):
+        md_p = self.__handle_blockquote_helper([], parent_quote)
+        bq_content = "\n".join([p.to_html() for p in md_p])
+        md_bq = _MDElement("blockquote", bq_content)
+        return md_bq
 
     def parse(self):
         line = self.__peek_line()
@@ -241,7 +253,8 @@ class MarkdownParser:
                 md_italic = self.__handle_italic(line)
                 self.elements.append(md_italic)
             elif line.startswith(">"):
-                md_block_quote = self.__handle_blockquote()
+                md_block_quote = self.__handle_blockquote(1)
+                print(self.__peek_line())
                 self.elements.append(md_block_quote)
             elif line.startswith("```"):
                 md_code_block = self.__handle_code_block()
