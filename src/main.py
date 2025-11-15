@@ -1,4 +1,6 @@
 from markdown import MarkdownParser
+import argparse
+import shutil
 import sys
 import os
 
@@ -24,6 +26,9 @@ class Main:
         template_path = "./template/template.html"
         md_parser.generate_template(template_path)
 
+        css_template = "./template/style.css"
+        shutil.copy(css_template, "./generated/style.css")
+
         self.file.close()
 
     def __is_file_md(self):
@@ -33,5 +38,16 @@ class Main:
 
 
 if __name__ == "__main__":
-    filepath = "./markdown_syntax.md"
+    parser = argparse.ArgumentParser(
+            "mdweb",
+            description="Transform text written\
+                    in Markdown into static webpages"
+            )
+    parser.add_argument("dir", help="Directory containing index.md")
+    args = parser.parse_args()
+    path = args.dir
+    filepath = f"{path}/index.md"
     main = Main(filepath)
+    dst = "./generated"
+    shutil.copytree(path, dst, ignore=shutil.ignore_patterns("index.md"),
+                    dirs_exist_ok=True)

@@ -1,0 +1,103 @@
+/* Reset some defaults */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body styling */
+body {
+    font-family: 'Georgia', serif;
+    line-height: 1.7;
+    background-color: #f2f4f8; /* soft light background */
+    color: #333; /* dark gray for text, not black */
+    padding: 20px;
+}
+
+/* Main container */
+#main {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #ffffff; /* clean white card */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* softer shadow */
+    border: 1px solid #e0e3e8; /* subtle border */
+}
+
+/* Headings */
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 25px;
+    color: #1f3b4d; /* muted navy blue */
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #2a4d63; /* softer dark blue */
+}
+
+/* Paragraphs */
+p {
+    margin-bottom: 18px;
+    font-size: 1.05rem;
+    color: #444; /* slightly lighter than heading */
+}
+
+/* Links */
+a {
+    color: #3b82f6; /* gentle blue */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Strong text */
+strong {
+    font-weight: 600;
+    color: #2c3e50; /* subtle emphasis */
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 25px;
+    border-radius: 6px;
+    border: 1px solid #e0e3e8;
+}
+
+/* Ordered list */
+ol {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+li {
+    margin-bottom: 12px;
+}
+
+/* Responsive typography for smaller screens */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    body {
+        padding: 10px;
+    }
+
+    #main {
+        padding: 20px;
+    }
+}
+

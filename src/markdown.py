@@ -161,9 +161,15 @@ class MarkdownParser:
     def __handle_img(self, match):
         alt_text = match.group(1)
         src_n_title = match.group(2)
-        title = re.search(r'"(.*?)"', src_n_title).group(1)
-        src = re.match(r'^(.*?) ', src_n_title).group(1)
-        src = src.rstrip()
+        m_title = re.search(r'"(.*?)"', src_n_title)
+        title = None
+        src = None
+        if m_title:
+            title = m_title.group(1)
+            src = re.match(r'^(.*?)\s*', src_n_title).group(1)
+            src = src.rstrip()
+        else:
+            src = src_n_title
         attr = f'src="{src}" alt="{alt_text}"'
         if title is not None:
             attr += f' title="{title}"'
