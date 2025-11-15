@@ -194,11 +194,20 @@ class MarkdownParser:
         return quote_count
 
     def __handle_blockquote_helper(self, blockquote_list):
-        p_content = ""
+        ps = []
+        content = ""
         for quote in blockquote_list:
-            p_content += quote.lstrip(">").lstrip()
-        p = _MDElement("p", p_content)
-        return _MDElement("blockquote", p.to_html())
+            q_cont = quote.lstrip(">").lstrip()
+            if q_cont:
+                content += q_cont
+            else:
+                ps.append(_MDElement("p", content).to_html())
+                content = ""
+
+        if content:
+            ps.append(_MDElement("p", content).to_html())
+        bq_cont = "\n".join(ps)
+        return _MDElement("blockquote", bq_cont)
 
     def __handle_blockquote(self):
         blockquote_list = []
