@@ -1,4 +1,5 @@
-from markdown import MarkdownParser
+from .markdown import MarkdownParser
+from importlib import resources
 import argparse
 import shutil
 import sys
@@ -23,11 +24,13 @@ class Main:
         md_parser.parse()
         # md_parser.dump_element()
 
-        template_path = "./template/template.html"
-        md_parser.generate_template(template_path)
+        template_html = resources.read_text("mdweb.template", "template.html")
+        md_parser.generate_template(template_html)
 
-        css_template = "./template/style.css"
-        shutil.copy(css_template, "./generated/style.css")
+        css_content = resources.read_text("mdweb.template", "style.css")
+        os.makedirs("./generated", exist_ok=True)
+        with open("./generated/style.css", "w") as css_file:
+            css_file.write(css_content)
 
         self.file.close()
 
@@ -37,7 +40,7 @@ class Main:
         return False
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
             "mdweb",
             description="Transform text written\
@@ -47,7 +50,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     path = args.dir
     filepath = f"{path}/index.md"
-    main = Main(filepath)
+    Main(filepath)
     dst = "./generated"
     shutil.copytree(path, dst, ignore=shutil.ignore_patterns("index.md"),
                     dirs_exist_ok=True)
+
+
+if __name__ == "__main__":
+    main()

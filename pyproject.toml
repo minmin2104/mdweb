@@ -1,0 +1,22 @@
+[project]
+name = "mdweb"
+version = "1.0.0"
+requires-python = ">=3.8"
+license = "MIT"
+readme = "README.md"
+
+authors = [
+  { name = "Muhammad Amin bin Mohd Kafri", email = "aminkafri0045@gmail.com" }
+]
+
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+mdweb = "mdweb.__main__:main"
+
+[tool.setuptools]
+packages = ["mdweb"]
+include-package-data = true
+

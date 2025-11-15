@@ -289,7 +289,7 @@ class MarkdownParser:
             self.__get_next_line()
             line = self.__peek_line()
 
-    def generate_template(self, template_filepath):
+    def generate_template(self, template_content: str):
         """
         Convert parsed elements into HTML and create a new index.html
         file using the template
@@ -297,41 +297,20 @@ class MarkdownParser:
         if not self.elements:
             return
 
-        template_file = None
-        try:
-            template_file = open(template_filepath, "r+")
-        except OSError as e:
-            print(f"Failed to read template: {e}", file=sys.stderr)
-            return
+        elements = [e.to_html() for e in self.elements]
+        inserted_content = "\n".join(elements)
 
-        inserted_content = ""
-        for e in self.elements:
-            txt = e.to_html()
-            inserted_content += f"{txt}\n"
+        updated_content = template_content.replace(
+                "<!--CONTENT-->", inserted_content)
 
-        original_content = template_file.read()
-        template_file.close()
-        updated_content = original_content.replace(
-                "<!--CONTENT-->",
-                inserted_content
-                )
-        index_html_file = None
         index_path = "./generated/index.html"
         os.makedirs(os.path.dirname(index_path),
                     exist_ok=True)  # create ./generated if needed
         try:
-            index_html_file = open(index_path, "w")
+            with open(index_path, "w") as index_html_file:
+                index_html_file.write(updated_content)
         except OSError as e:
             print(f"Failed to write index.html: {e}", file=sys.stderr)
-            return
-        try:
-            index_html_file = open(index_path, "w")
-        except OSError as e:
-            print(f"Failed to write index.html: {e}", file=sys.stderr)
-            return
-
-        index_html_file.write(updated_content)
-        index_html_file.close()
 
     def dump_element(self):
         for e in self.elements:
