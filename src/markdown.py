@@ -184,6 +184,29 @@ class MarkdownParser:
         code = _MDElement("code", content).to_html()
         return _MDElement("pre", code)
 
+    def __get_quote(self, line):
+        quote_count = 0
+        for w in line:
+            if w == ">":
+                quote_count += 1
+            else:
+                break
+        return quote_count
+
+    def __handle_blockquote_helper(self, blockquote_list):
+        p_content = ""
+        for quote in blockquote_list:
+            p_content += quote.lstrip(">").lstrip()
+        p = _MDElement("p", p_content)
+        return _MDElement("blockquote", p.to_html())
+
+    def __handle_blockquote(self):
+        blockquote_list = []
+        while self.__peek_line().startswith(">"):
+            line = self.__get_next_line()
+            blockquote_list.append(line)
+        return self.__handle_blockquote_helper(blockquote_list)
+
     def parse(self):
         line = self.__peek_line()
         while line:
@@ -208,6 +231,9 @@ class MarkdownParser:
             elif line.startswith("*") or line.startswith("_"):
                 md_italic = self.__handle_italic(line)
                 self.elements.append(md_italic)
+            elif line.startswith(">"):
+                md_block_quote = self.__handle_blockquote()
+                self.elements.append(md_block_quote)
             elif line.startswith("```"):
                 md_code_block = self.__handle_code_block()
                 self.elements.append(md_code_block)
