@@ -3,6 +3,10 @@
 This tools allow you to write your blog in Markdown Files and convert it into
 a static web pages.
 
+**Example Generated Website**
+
+![1763968005942](https://github.com/user-attachments/assets/da3f063f-3900-470b-992d-c11280594f55)
+
 > [!IMPORTANT]
 > ## Early access
 > This tool is still in it development state but already is usable with a few
